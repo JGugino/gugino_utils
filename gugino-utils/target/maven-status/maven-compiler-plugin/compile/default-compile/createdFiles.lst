@@ -1,0 +1,4 @@
+org\gugino\util\windows\WindowHandler.class
+org\gugino\util\windows\Window.class
+org\gugino\utils\IDCreator.class
+org\gugino\util\enums\CloseOperations.class
