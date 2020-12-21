@@ -1,6 +1,7 @@
 package org.gugino.util.windows;
 
 import java.awt.Dimension;
+import java.awt.LayoutManager;
 import java.util.HashMap;
 
 import org.gugino.util.IDCreator;
@@ -14,34 +15,34 @@ public final class WindowHandler {
 	//A hash of all currently active windows
 	private static HashMap<Integer, Window> activeWindows = new HashMap<>();
 	
-	//Methods for creating new windows using different arguments
-	public static Window createNewWindow(String _title) {
-		Window _createdWindow = new Window(id.nextID(), _title);
-		_createdWindow.setVisible(true);
+	//Constructors for creating new windows using different arguments
+	public static Window createNewWindow(String _template) {
+		Window _createdWindow = new Window(id.nextID(), _template);
 		return addWindow(_createdWindow);
 	}
 	
 	public static Window createNewWindow(String _title, CloseOperations _closeOp) {
 		Window _createdWindow = new Window(id.nextID(), _title, _closeOp);
-		_createdWindow.setVisible(true);
 		return addWindow(_createdWindow);
 	}
 	
 	public static Window createNewWindow(String _title, Dimension _dims, CloseOperations _closeOp) {
 		Window _createdWindow = new Window(id.nextID(), _title, _dims, _closeOp);
-		_createdWindow.setVisible(true);
+		return addWindow(_createdWindow);
+	}
+	
+	public static Window createNewWindow(String _title, Dimension _dims, CloseOperations _closeOp, LayoutManager _layout) {
+		Window _createdWindow = new Window(id.nextID(), _title, _dims, _closeOp, _layout);
 		return addWindow(_createdWindow);
 	}
 	
 	public static Window createNewWindow(String _title, Dimension _dims) {
 		Window _createdWindow = new Window(id.nextID(), _title, _dims);
-		_createdWindow.setVisible(true);
 		return addWindow(_createdWindow);
 	}
 	
 	public static Window createNewWindow(String _title, int _width, int _height) {
 		Window _createdWindow = new Window(id.nextID(), _title, _width, _height);
-		_createdWindow.setVisible(true);
 		return addWindow(_createdWindow);
 	}
 	
@@ -53,8 +54,8 @@ public final class WindowHandler {
 		}
 		
 		System.out.println("Window with ID: " + _window.windowID() + " was successfully added to WindowHandler");
-		
-		return activeWindows.put(_window.windowID(), _window);
+		activeWindows.put(_window.windowID(), _window);
+		return _window;
 	}
 	
 	//Method for checking if a window exists inside the activeWindows hash and if it does removes it from the hash 

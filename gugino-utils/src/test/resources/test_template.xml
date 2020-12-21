@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Window title="XML Test Window" width="800" height="600" closeOp="EXIT" resize="FALSE">	
+	<Layout type="BorderLayout" hgap="5" vgap="5">
+		<Panel name="left-panel" layoutContainer="left-panel" borderLayoutPos="LINE_START">
+			<Label name="input-label" value="Test Label">
+				<TextField name="test-input" width="100" height="50"></TextField>			
+			</Label>
+			<Button name="test-button" width="100" height="50">Test Button</Button>
+		</Panel>
+		
+		<Panel name="center-panel" borderLayoutPos="CENTER">
+			<Label name="test-label" value="TEST"></Label>	
+		</Panel>
+	</Layout>
+</Window>
