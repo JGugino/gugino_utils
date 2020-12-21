@@ -19,12 +19,14 @@ import javax.swing.JTextField;
 import javax.swing.JToolTip;
 
 public class ComponentHolder {
+	public int windowID;
 	public String componentName;
 	public String componentType;
 	private Component component;
 	public ContainerHolder parentContainer;
 	
-	public ComponentHolder(String _compName, String _compType, Component _comp, ContainerHolder _parent) {
+	public ComponentHolder(int _windowID, String _compName, String _compType, Component _comp, ContainerHolder _parent) {
+		this.windowID = _windowID;
 		this.componentName = _compName;
 		this.componentType = _compType;
 		this.component = _comp;
@@ -35,7 +37,7 @@ public class ComponentHolder {
 		switch (componentType) {
 		case "button":
 			return (JButton)component;
-		case "textinput":
+		case "textfield":
 			return (JTextField)component;
 		case "checkbox":
 			return (JCheckBox)component;

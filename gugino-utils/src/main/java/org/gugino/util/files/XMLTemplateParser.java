@@ -1,17 +1,21 @@
 package org.gugino.util.files;
 
 import java.awt.BorderLayout;
-import java.awt.Container;
 import java.awt.Dimension;
 
 import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JTextField;
 
+import org.gugino.util.IDCreator;
 import org.gugino.util.enums.CloseOperations;
+import org.gugino.util.windows.ComponentHolder;
 import org.gugino.util.windows.ContainerHolder;
 import org.gugino.util.windows.Window;
-import org.gugino.util.windows.WindowHandler;
 import org.gugino.util.windows.WindowInformation;
+import org.gugino.util.windows.Windows;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -19,11 +23,13 @@ import org.w3c.dom.NodeList;
 
 public class XMLTemplateParser {
 	
-	public static WindowInformation windowInfo;
+	public WindowInformation windowInfo;
 	
-	public static void parseXMLTemplate(Window _window, Document _document) {
+	public void parseXMLTemplate(Document _document) {
 		windowInfo = new WindowInformation();
-		windowInfo.windowID = _window.windowID();
+		
+		Window _createdWindow = new Window(Windows.id.nextID());
+		windowInfo.windowID = _createdWindow.windowID();
 		
 		/*Parsing Process:
 		 * First look for window tag  and pull window attributes
@@ -36,11 +42,11 @@ public class XMLTemplateParser {
 		if(windowNodesList.getLength() <= 0) {System.err.println("No window tag found!"); return;
 		}else if(windowNodesList.getLength() > 1) { System.err.println("You can only have one window tag!"); return;}
 		
-		windowSetup(_window, windowNodesList.item(0));
+		windowSetup(_createdWindow, windowNodesList.item(0));
 		
 	}
 	
-	private static void windowSetup(Window _window, Node _node) {
+	private void windowSetup(Window _window, Node _node) {
 		Element _windowNode = ((Element) _node);
 		
 		//Finds and assigns title attribute for window
@@ -101,9 +107,8 @@ public class XMLTemplateParser {
 		
 		if(!_layout.hasAttribute("type")) {windowInfo.windowLayout = new BorderLayout();}
 		else {
-			String _containerName = "";
-			switch(_layout.getAttribute("type")) {
-			case "BorderLayout":
+			String _layoutType =  _layout.getAttribute("type");
+			if(_layoutType.equals("BorderLayout")) {
 				int hgap = 0;
 				int vgap = 0;
 				
@@ -111,62 +116,25 @@ public class XMLTemplateParser {
 				if(_layout.hasAttribute("vgap")) vgap = Integer.parseInt(_layout.getAttribute("vgap"));
 				
 				windowInfo.windowLayout = new BorderLayout(hgap, vgap);
-				break;
-			case "BoxLayout":
-				Container _container = null;
+			}else if(_layoutType.equals("BoxLayout")) {
 				int _pageAxis = 0;
 				
 				if(_layout.hasAttribute("axis")) _pageAxis = Integer.parseInt(_layout.getAttribute("axis"));
 				
-				NodeList _containerNodes = _layout.getElementsByTagName("Panel");
+				windowInfo.windowLayout = new BoxLayout(_window.getContentPane(), _pageAxis);
+			}else if(_layoutType.equals("CardLayout")) {
 				
-				if(_containerNodes.getLength() > 0) {
-					for (int _p = 0; _p < _containerNodes.getLength(); _p++) {
-						Element _panelElement = (Element) _containerNodes.item(_p);
-						
-						if(_panelElement.hasAttribute("layoutContainer")) {
-							_container = new JPanel();
-							_containerName = _panelElement.getAttribute("layoutContainer");
-							
-							if(_panelElement.hasAttribute("name")) {
-								_containerName = _panelElement.getAttribute("name");
-							}
-							
-							windowInfo.windowLayout = new BoxLayout(_container, _pageAxis);
-							
-							ContainerHolder _containerHolder = new ContainerHolder(_containerName, "panel", _container);
-							windowInfo.windowContainers.put(_containerName, _containerHolder);
-						}
-					}
-				}
+			}else if(_layoutType.equals("FlowLayout")) {
 				
-				if(_container == null) System.err.println("Failed to create layout container");
-				break;
-			case "CardLayout":
+			}else if(_layoutType.equals("GridBagLayout")) {
 				
-				break;
-			case "FlowLayout":
+			}else if(_layoutType.equals("GroupLayout")) {
 				
-				break;
-			case "GridBagLayout":
+			}else if(_layoutType.equals("SpringLayout")) {
 				
-				break;
-			case "GridLayout":
-				
-				break;
-			case "GroupLayout":
-				
-				break;
-			case "SpringLayout":
-				
-				break;
-				
-				default:
-					System.err.println("Unknown layout type");
-					break;
+			}else {
+				System.err.println("Unknown layout type");
 			}
-						
-			_window.windowContainers.put(_containerName, windowInfo.windowContainers.get(_containerName));
 			
 			_window.setTitle(windowInfo.windowTitle);
 			_window.setPreferredSize(new Dimension(windowInfo.windowWidth, windowInfo.windowHeight));
@@ -174,9 +142,122 @@ public class XMLTemplateParser {
 			_window.setDefaultCloseOperation(windowInfo.closeOperation.operation);
 			_window.setLocationRelativeTo(_window.getRootPane());
 			_window.setResizable(windowInfo.resizable);
-			_window.setLayout(windowInfo.windowLayout);
+			_window.getContentPane().setLayout(windowInfo.windowLayout);
+			
+			IDCreator _id = new IDCreator();
+
+			NodeList _layoutPanels = _layout.getElementsByTagName("Panel");
+			if(_layoutPanels.getLength() > 0) {
+				for (int _p = 0; _p < _layoutPanels.getLength(); _p++) {
+					Element _panel = (Element) _layoutPanels.item(_p);
+					JPanel _createdPanel = new JPanel();
+					String _containerName = "dasdsa";
+					
+					if(!_panel.hasAttribute("name")) _containerName = "panel_"+_id.nextID();
+					else _containerName = _panel.getAttribute("name");
+
+					ContainerHolder _container = new ContainerHolder(_window.windowID(), _containerName, "panel", _createdPanel);
+					
+					Windows.windowContainers.put(_containerName, _container);
+					if(windowInfo.windowLayout instanceof BorderLayout) {
+						if(_panel.hasAttribute("borderLayoutPos")) {
+							switch(_panel.getAttribute("borderLayoutPos")) {
+							case "LINE_START":
+								_window.getContentPane().add(_createdPanel, BorderLayout.LINE_START);	
+								break;
+							case "CENTER":
+								_window.getContentPane().add(_createdPanel, BorderLayout.CENTER);	
+								break;
+							case "LINE_END":
+								_window.getContentPane().add(_createdPanel, BorderLayout.LINE_END);	
+								break;
+							case "PAGE_START":
+								_window.getContentPane().add(_createdPanel, BorderLayout.PAGE_START);	
+								break;
+							case "PAGE_END":
+								_window.getContentPane().add(_createdPanel, BorderLayout.PAGE_END);	
+								break;
+								default:
+									_window.getContentPane().add(_createdPanel, BorderLayout.CENTER);
+									break;
+							}
+						}
+					}else {
+						_window.getContentPane().add(_createdPanel);
+					}
+					
+					addWindowComponents(_window, _panel, _container);
+				}	
+			}
+		}
+		
+		if(!_window.isVisible()){
 			_window.pack();
 			_window.setVisible(true);
+		}
+	}
+	
+	private void addWindowComponents(Window _window, Element _container, ContainerHolder _holder) {
+		IDCreator _id = new IDCreator();
+
+		NodeList _containerChildren = _container.getChildNodes();
+		
+		for (int i = 0; i < _containerChildren.getLength(); i++) {
+			Node _node = _containerChildren.item(i);
+			switch(_node.getNodeName()) {
+			case "Label":
+				if(!Windows.windowComponents.containsKey(((Element) _node).getAttribute("name"))) {
+					JLabel _createdComponent = new JLabel();
+					String _componentName = "";
+					
+					if(!((Element) _node).hasAttribute("name")) _componentName = "label_"+_id.nextID();
+					else _componentName = ((Element) _node).getAttribute("name");
+
+					if(((Element) _node).hasAttribute("value")) _createdComponent.setText(((Element) _node).getAttribute("value"));
+					
+					ComponentHolder _component = new ComponentHolder(_window.windowID(), _componentName, "label", _createdComponent, _holder);
+					
+					Windows.windowComponents.put(_componentName, _component);
+					_holder.getContainer().add(_createdComponent);
+				}
+				break;
+			case "Button":
+				if(!Windows.windowComponents.containsKey(((Element) _node).getAttribute("name"))) {
+					JButton _createdComponent = new JButton();
+					String _componentName = "";
+					
+					if(!((Element) _node).hasAttribute("name")) _componentName = "button_"+_id.nextID();
+					else _componentName = ((Element) _node).getAttribute("name");
+
+					if(((Element) _node).hasAttribute("width") && ((Element) _node).hasAttribute("height")) _createdComponent.setPreferredSize(new Dimension(Integer.parseInt(((Element) _node).getAttribute("width")), Integer.parseInt(((Element) _node).getAttribute("height"))));
+					
+					_createdComponent.setText(_node.getTextContent());
+					
+					ComponentHolder _component = new ComponentHolder(_window.windowID(), _componentName, "button", _createdComponent, _holder);
+					
+					Windows.windowComponents.put(_componentName, _component);
+					_holder.getContainer().add(_createdComponent);
+				}
+				break;
+			case "TextField":
+				if(!Windows.windowComponents.containsKey(((Element) _node).getAttribute("name"))) {
+					JTextField _createdComponent = new JTextField();
+					String _componentName = "";
+					
+					if(!((Element) _node).hasAttribute("name")) _componentName = "textfield_"+_id.nextID();
+					else _componentName = ((Element) _node).getAttribute("name");
+
+					if(((Element) _node).hasAttribute("width") && ((Element) _node).hasAttribute("height")) _createdComponent.setPreferredSize(new Dimension(Integer.parseInt(((Element) _node).getAttribute("width")), Integer.parseInt(((Element) _node).getAttribute("height"))));
+					
+					_createdComponent.setText(_node.getTextContent());
+					
+					ComponentHolder _component = new ComponentHolder(_window.windowID(), _componentName, "textfield", _createdComponent, _holder);
+					
+					Windows.windowComponents.put(_componentName, _component);
+					_holder.getContainer().add(_createdComponent);
+				}	
+				break;
+			}
 		}
 	}
 }

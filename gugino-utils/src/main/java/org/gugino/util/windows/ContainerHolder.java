@@ -1,6 +1,5 @@
 package org.gugino.util.windows;
 
-import java.awt.Component;
 import java.awt.Container;
 
 import javax.swing.JPanel;
@@ -10,17 +9,19 @@ import javax.swing.JTabbedPane;
 import javax.swing.JToolBar;
 
 public class ContainerHolder {
+	public int windowID;
 	public String containerName;
 	public String containerType;
 	private Container container;
 	
-	public ContainerHolder(String _containerName, String _containerType, Container _container) {
+	public ContainerHolder(int _windowID, String _containerName, String _containerType, Container _container) {
+		this.windowID = _windowID;
 		this.containerName = _containerName;
 		this.containerType = _containerType;
 		this.container = _container;
 	}
 	
-	public Component getComponent(){
+	public Container getContainer(){
 		switch (containerType) {
 		case "panel":
 			return (JPanel)container;

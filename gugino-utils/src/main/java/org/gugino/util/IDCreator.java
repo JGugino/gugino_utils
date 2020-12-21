@@ -16,7 +16,7 @@ public class IDCreator {
 	}
 	
 	public int nextID() {
-		return ++currentID;
+		return currentID++;
 	}
 	
 	public int resetIDCreator() {
