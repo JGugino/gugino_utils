@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Window title="XML Test Window" width="1000" height="600" closeOp="EXIT" resize="TRUE">	
+	<Layout type="BorderLayout" hgap="5" vgap="5">
+		<Panel name="top-panel2" borderLayoutPos="CENTER">
+			<Label name="top-label2" value="Example Program"></Label>
+		</Panel>
+	
+		<Panel name="left-panel" borderLayoutPos="LINE_START">
+			<Label name="input-label">Test Label</Label>
+			<TextField name="test-input2" width="100" height="20"></TextField>
+			<Label name="input-label22">Label2</Label>
+			<TextField name="test-inpu2t2" width="100" height="20"></TextField>		
+			<Button name="test-button2">Example Button</Button>
+			<CheckBox name="check-box-1">Example Text 1</CheckBox>
+			<ComboBox name="combo-box-1">
+				<ComboItem>Item One</ComboItem>
+				<ComboItem selected="TRUE">Item Two</ComboItem>
+				<ComboItem>Item Three</ComboItem>
+			</ComboBox>
+		</Panel>
+		
+		<Panel name="center-panel2" borderLayoutPos="PAGE_END">
+			<Label name="test-label2" value="TEST"></Label>	
+		</Panel>
+	</Layout>
+</Window>

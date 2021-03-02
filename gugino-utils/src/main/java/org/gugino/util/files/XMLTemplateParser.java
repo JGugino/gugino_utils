@@ -5,6 +5,8 @@ import java.awt.Dimension;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
@@ -62,7 +64,7 @@ public class XMLTemplateParser {
 		else {windowInfo.windowHeight = Integer.parseInt(_windowNode.getAttribute("height"));}
 				
 		//Finds and assigns close operation attribute for window
-		if(!_windowNode.hasAttribute("closeOP")) {windowInfo.closeOperation = CloseOperations.EXIT;}
+		if(!_windowNode.hasAttribute("closeOp")) { windowInfo.closeOperation = CloseOperations.EXIT;}
 		else {
 			switch(_windowNode.getAttribute("closeOp")) {
 			case "DO_NOTHING":
@@ -136,22 +138,24 @@ public class XMLTemplateParser {
 				System.err.println("Unknown layout type");
 			}
 			
+			//Assigns all vlaue's for the window
+			_window.getContentPane().setLayout(windowInfo.windowLayout);
 			_window.setTitle(windowInfo.windowTitle);
 			_window.setPreferredSize(new Dimension(windowInfo.windowWidth, windowInfo.windowHeight));
 			_window.setMinimumSize(new Dimension(windowInfo.windowWidth, windowInfo.windowHeight));
 			_window.setDefaultCloseOperation(windowInfo.closeOperation.operation);
 			_window.setLocationRelativeTo(_window.getRootPane());
 			_window.setResizable(windowInfo.resizable);
-			_window.getContentPane().setLayout(windowInfo.windowLayout);
 			
 			IDCreator _id = new IDCreator();
 
+			//Applies the layout to the content pane of the window's JFrame
 			NodeList _layoutPanels = _layout.getElementsByTagName("Panel");
 			if(_layoutPanels.getLength() > 0) {
 				for (int _p = 0; _p < _layoutPanels.getLength(); _p++) {
 					Element _panel = (Element) _layoutPanels.item(_p);
 					JPanel _createdPanel = new JPanel();
-					String _containerName = "dasdsa";
+					String _containerName = "";
 					
 					if(!_panel.hasAttribute("name")) _containerName = "panel_"+_id.nextID();
 					else _containerName = _panel.getAttribute("name");
@@ -191,6 +195,7 @@ public class XMLTemplateParser {
 			}
 		}
 		
+		//Packs and sets the window to visible if it isn't already
 		if(!_window.isVisible()){
 			_window.pack();
 			_window.setVisible(true);
@@ -213,12 +218,14 @@ public class XMLTemplateParser {
 					if(!((Element) _node).hasAttribute("name")) _componentName = "label_"+_id.nextID();
 					else _componentName = ((Element) _node).getAttribute("name");
 
-					if(((Element) _node).hasAttribute("value")) _createdComponent.setText(((Element) _node).getAttribute("value"));
+					_createdComponent.setText(_node.getTextContent());
 					
 					ComponentHolder _component = new ComponentHolder(_window.windowID(), _componentName, "label", _createdComponent, _holder);
 					
 					Windows.windowComponents.put(_componentName, _component);
 					_holder.getContainer().add(_createdComponent);
+				}else {
+					System.err.println("Component with name " + ((Element) _node).getAttribute("name") + " already exists");
 				}
 				break;
 			case "Button":
@@ -237,6 +244,8 @@ public class XMLTemplateParser {
 					
 					Windows.windowComponents.put(_componentName, _component);
 					_holder.getContainer().add(_createdComponent);
+				}else {
+					System.err.println("Component with name " + ((Element) _node).getAttribute("name") + " already exists");
 				}
 				break;
 			case "TextField":
@@ -255,9 +264,72 @@ public class XMLTemplateParser {
 					
 					Windows.windowComponents.put(_componentName, _component);
 					_holder.getContainer().add(_createdComponent);
-				}	
+				}else {
+					System.err.println("Component with name " + ((Element) _node).getAttribute("name") + " already exists");
+				}
+				break;
+			case "CheckBox":
+				if(!Windows.windowComponents.containsKey(((Element) _node).getAttribute("name"))) {
+					JCheckBox _createdComponent = new JCheckBox();
+					String _componentName = "";
+					
+					if(!((Element) _node).hasAttribute("name")) _componentName = "checkbox_"+_id.nextID();
+					else _componentName = ((Element) _node).getAttribute("name");
+					
+					if(((Element)_node).hasAttribute("selected")) {
+						String _value = ((Element) _node).getAttribute("selected");
+						
+						if(_value.equals("TRUE")) {
+							_createdComponent.setSelected(true);
+						}
+						
+						if(_value.equals("FALSE")) {
+							_createdComponent.setSelected(false);
+						}
+					}
+					
+					_createdComponent.setText(_node.getTextContent());
+					
+					ComponentHolder _component = new ComponentHolder(_window.windowID(), _componentName, "checkbox", _createdComponent, _holder);
+					
+					Windows.windowComponents.put(_componentName, _component);
+					_holder.getContainer().add(_createdComponent);
+				}else {
+					System.err.println("Component with name " + ((Element) _node).getAttribute("name") + " already exists");
+				}
+				break;
+				
+			case "ComboBox":
+				if(!Windows.windowComponents.containsKey(((Element) _node).getAttribute("name"))) {
+					NodeList _listNodes = _node.getChildNodes();
+					
+					JComboBox<String> _createdComponent = new JComboBox<>();
+					String _componentName = "";
+					
+					for(int _s = 0; _s < _listNodes.getLength(); _s++ ) {
+						Node _string = _listNodes.item(_s);
+						_createdComponent.insertItemAt(_string.getTextContent(), _s);
+						if(_string.hasAttributes()) {
+							if(((Element) _string).hasAttribute("selected")) {
+								_createdComponent.setSelectedIndex(_s);
+							}
+						}
+					}
+					
+					if(!((Element) _node).hasAttribute("name")) _componentName = "combobox_"+_id.nextID();
+					else _componentName = ((Element) _node).getAttribute("name");
+
+					ComponentHolder _component = new ComponentHolder(_window.windowID(), _componentName, "combobox", _createdComponent, _holder);
+					
+					Windows.windowComponents.put(_componentName, _component);
+					_holder.getContainer().add(_createdComponent);
+				}else {
+					System.err.println("Component with name " + ((Element) _node).getAttribute("name") + " already exists");
+				}
 				break;
 			}
+			
+			_window.pack();
 		}
 	}
 }

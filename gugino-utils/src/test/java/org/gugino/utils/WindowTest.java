@@ -7,7 +7,7 @@ public class WindowTest {
 	public static void main(String[] args) {
 		WindowHandler _handler = new WindowHandler();
 		
-		_handler.createNewWindow("./test_template.xml");
+		_handler.createNewWindow("./border_layout_temp.xml");
 	}
 
 }

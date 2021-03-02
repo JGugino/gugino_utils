@@ -35,8 +35,7 @@ public class FileReader {
 			byte[] _inputBytes = _inputStream.readAllBytes();
 			OutputStream _output = new FileOutputStream(_newFile);
 			for (int i = 0; i < _inputBytes.length; i++) {
-				_output.write(_inputBytes[i]);
-			}
+				_output.write(_inputBytes[i]);}
 			_output.close();
 			return _newFile;
 		} catch (IOException e) {
